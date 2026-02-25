@@ -1,3 +1,23 @@
+/* Header: black background, white text (overrides theme) */
+.site-header {
+  background-color: #000 !important;
+}
+.site-header .navbar-brand,
+.site-header .nav-link {
+  color: #fff !important;
+}
+.site-header .nav-link:hover,
+.site-header .nav-link:focus {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.site-header .navbar-toggler {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+.site-header .navbar-toggler-icon {
+  filter: invert(1);
+}
+
 html {
   font-size: 14px;
 }
