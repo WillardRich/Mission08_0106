@@ -1,0 +1,20 @@
+@model TaskFormVM
+@{
+    ViewData["Title"] = "Edit Task";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Edit Task</h1>
+            <form asp-action="Edit" method="post">
+                <input asp-for="Id" type="hidden" />
+                <partial name="_TaskForm" model="Model" />
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

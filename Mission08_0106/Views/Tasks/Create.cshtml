@@ -1,0 +1,19 @@
+@model TaskFormVM
+@{
+    ViewData["Title"] = "Add Task";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Add Task</h1>
+            <form asp-action="Create" method="post">
+                <partial name="_TaskForm" model="Model" />
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

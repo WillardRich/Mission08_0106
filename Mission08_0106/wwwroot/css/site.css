@@ -29,3 +29,22 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Shared validation summary: show errors in Bootstrap alert style */
+.validation-summary-valid {
+  display: none;
+}
+
+.validation-summary-errors {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--bs-danger-border-subtle);
+  border-radius: var(--bs-border-radius);
+  background-color: var(--bs-danger-bg-subtle);
+  color: var(--bs-danger-text-emphasis);
+}
+
+.validation-summary-errors ul {
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+}
