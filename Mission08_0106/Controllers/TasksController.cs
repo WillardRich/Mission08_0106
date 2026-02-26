@@ -1,5 +1,5 @@
-// PLACEHOLDER CONTROLLER: Temporary until Role #1 provides models and full controller logic.
-// POST actions only redirect; no database or repository code. Replace when real TasksController is implemented.
+// Controller for Task CRUD operations
+// Requires Role #1 to implement: ITaskRepository interface
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,7 +9,6 @@ namespace Mission08_0106.Controllers
 {
     public class TasksController : Controller
     {
-
         private ITaskRepository _repo;
 
         public TasksController(ITaskRepository temp)
@@ -17,10 +16,16 @@ namespace Mission08_0106.Controllers
             _repo = temp;
         }
 
-
+        // GET: Display all incomplete tasks in Quadrants view
         public IActionResult Index()
         {
-            return View();
+            // Only display tasks that have NOT been completed (per requirements)
+            var incompleteTasks = _repo.Tasks
+                .Include(t => t.Category)
+                .Where(t => !t.Completed)
+                .ToList();
+
+            return View(incompleteTasks);
         }
 
         [HttpGet]
@@ -40,8 +45,8 @@ namespace Mission08_0106.Controllers
                 return View(newTask);
             }
 
-            _repo.Tasks.Add(newTask);
-            _repo.SaveChanges();
+            _repo.AddTask(newTask);
+            _repo.Save();
 
             return RedirectToAction("Index");
         }
@@ -51,10 +56,10 @@ namespace Mission08_0106.Controllers
         {
             var taskToEdit = _repo.Tasks
                 .Include(t => t.Category)
-                .Single(t => t.Id == id);
-            
+                .Single(t => t.TaskId == id);
+
             ViewBag.Categories = _repo.Categories.ToList();
-            return View("Create", taskToEdit);
+            return View("Edit", taskToEdit);
         }
 
         [HttpPost]
@@ -63,11 +68,11 @@ namespace Mission08_0106.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Categories = _repo.Categories.ToList();
-                return View("Create", updatedTask);
+                return View("Edit", updatedTask);
             }
 
-            _repo.Tasks.Update(updatedTask);
-            _repo.SaveChanges();
+            _repo.UpdateTask(updatedTask);
+            _repo.Save();
 
             return RedirectToAction("Index");
         }
@@ -77,7 +82,7 @@ namespace Mission08_0106.Controllers
         {
             var taskToDelete = _repo.Tasks
                 .Include(t => t.Category)
-                .Single(t => t.Id == id);
+                .Single(t => t.TaskId == id);
 
             return View(taskToDelete);
         }
@@ -85,8 +90,19 @@ namespace Mission08_0106.Controllers
         [HttpPost]
         public IActionResult Delete(TaskFormVM taskToDelete)
         {
-            _repo.Tasks.Delete(taskToDelete);
-            _repo.SaveChanges();
+            _repo.DeleteTask(taskToDelete);
+            _repo.Save();
+
+            return RedirectToAction("Index");
+        }
+
+        // POST: Mark a task as completed (required by assignment)
+        [HttpPost]
+        public IActionResult MarkComplete(int id)
+        {
+            var task = _repo.Tasks.Single(t => t.TaskId == id);
+            task.Completed = true;
+            _repo.Save();
 
             return RedirectToAction("Index");
         }
