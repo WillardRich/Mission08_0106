@@ -9,6 +9,35 @@ namespace Mission08_0106.Controllers
 {
     public class TasksController : Controller
     {
+        /*
+        private ITaskRepository _repo;
+
+        public TasksController(ITaskRepository temp)
+        {
+            _repo = temp;
+        }
+        */
+
+        [HttpGet]
+        public IActionResult Edit()
+        {
+            return View(new Task());
+        }
+
+        [HttpPost]
+        public IActionResult Edit(Task t)
+        {
+            if (ModelState.IsValid)
+            {
+                _repo.UpdateTask(t);
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return View(t);
+            }
+        }
+
         private static IEnumerable<SelectListItem> GetPlaceholderCategories()
         {
             return new List<SelectListItem>
@@ -33,7 +62,6 @@ namespace Mission08_0106.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(TaskFormVM model)
         {
             return RedirectToAction(nameof(Index));
@@ -51,8 +79,20 @@ namespace Mission08_0106.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Edit(TaskFormVM model)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var vm = new TaskFormVM { Id = id };
+            return View(vm);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(TaskFormVM model)
         {
             return RedirectToAction(nameof(Index));
         }
