@@ -9,45 +9,14 @@ namespace Mission08_0106.Controllers
 {
     public class TasksController : Controller
     {
-        /*
+
         private ITaskRepository _repo;
 
         public TasksController(ITaskRepository temp)
         {
             _repo = temp;
         }
-        */
 
-        [HttpGet]
-        public IActionResult Edit()
-        {
-            return View(new Task());
-        }
-
-        [HttpPost]
-        public IActionResult Edit(Task t)
-        {
-            if (ModelState.IsValid)
-            {
-                _repo.UpdateTask(t);
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                return View(t);
-            }
-        }
-
-        private static IEnumerable<SelectListItem> GetPlaceholderCategories()
-        {
-            return new List<SelectListItem>
-            {
-                new SelectListItem { Value = "1", Text = "Home" },
-                new SelectListItem { Value = "2", Text = "School" },
-                new SelectListItem { Value = "3", Text = "Work" },
-                new SelectListItem { Value = "4", Text = "Church" }
-            };
-        }
 
         public IActionResult Index()
         {
@@ -57,44 +26,69 @@ namespace Mission08_0106.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var vm = new TaskFormVM { Categories = GetPlaceholderCategories() };
-            return View(vm);
+            ViewBag.Categories = _repo.Categories.ToList();
+
+            return View(new TaskFormVM());
         }
 
         [HttpPost]
-        public IActionResult Create(TaskFormVM model)
+        public IActionResult Create(TaskFormVM newTask)
         {
-            return RedirectToAction(nameof(Index));
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = _repo.Categories.ToList();
+                return View(newTask);
+            }
+
+            _repo.Tasks.Add(newTask);
+            _repo.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var vm = new TaskFormVM
-            {
-                Id = id,
-                Categories = GetPlaceholderCategories()
-            };
-            return View(vm);
+            var taskToEdit = _repo.Tasks
+                .Include(t => t.Category)
+                .Single(t => t.Id == id);
+            
+            ViewBag.Categories = _repo.Categories.ToList();
+            return View("Create", taskToEdit);
         }
 
         [HttpPost]
-        public IActionResult Edit(TaskFormVM model)
+        public IActionResult Edit(TaskFormVM updatedTask)
         {
-            return RedirectToAction(nameof(Index));
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = _repo.Categories.ToList();
+                return View("Create", updatedTask);
+            }
+
+            _repo.Tasks.Update(updatedTask);
+            _repo.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            var vm = new TaskFormVM { Id = id };
-            return View(vm);
+            var taskToDelete = _repo.Tasks
+                .Include(t => t.Category)
+                .Single(t => t.Id == id);
+
+            return View(taskToDelete);
         }
 
         [HttpPost]
-        public IActionResult Delete(TaskFormVM model)
+        public IActionResult Delete(TaskFormVM taskToDelete)
         {
-            return RedirectToAction(nameof(Index));
+            _repo.Tasks.Delete(taskToDelete);
+            _repo.SaveChanges();
+
+            return RedirectToAction("Index");
         }
     }
 }
