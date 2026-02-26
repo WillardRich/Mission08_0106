@@ -1,8 +1,9 @@
 // Controller for Task CRUD operations
-// Requires Role #1 to implement: ITaskRepository interface
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Mission08_0106.Models;
 using Mission08_0106.ViewModels;
 
 namespace Mission08_0106.Controllers
@@ -37,15 +38,25 @@ namespace Mission08_0106.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(TaskFormVM newTask)
+        public IActionResult Create(TaskFormVM formData)
         {
             if (!ModelState.IsValid)
             {
                 ViewBag.Categories = _repo.Categories.ToList();
-                return View(newTask);
+                return View(formData);
             }
 
-            _repo.AddTask(newTask);
+            // Convert TaskFormVM to TaskItem entity
+            var taskItem = new TaskItem
+            {
+                TaskName = formData.Task,
+                DueDate = formData.DueDate,
+                Quadrant = formData.Quadrant,
+                CategoryId = formData.CategoryId,
+                Completed = formData.Completed
+            };
+
+            _repo.AddTask(taskItem);
             _repo.Save();
 
             return RedirectToAction("Index");
@@ -56,22 +67,44 @@ namespace Mission08_0106.Controllers
         {
             var taskToEdit = _repo.Tasks
                 .Include(t => t.Category)
-                .Single(t => t.TaskId == id);
+                .Single(t => t.TaskItemId == id);
+
+            // Convert TaskItem to TaskFormVM for the view
+            var formData = new TaskFormVM
+            {
+                Id = taskToEdit.TaskItemId,
+                Task = taskToEdit.TaskName,
+                DueDate = taskToEdit.DueDate,
+                Quadrant = taskToEdit.Quadrant,
+                CategoryId = taskToEdit.CategoryId,
+                Completed = taskToEdit.Completed
+            };
 
             ViewBag.Categories = _repo.Categories.ToList();
-            return View("Edit", taskToEdit);
+            return View("Edit", formData);
         }
 
         [HttpPost]
-        public IActionResult Edit(TaskFormVM updatedTask)
+        public IActionResult Edit(TaskFormVM formData)
         {
             if (!ModelState.IsValid)
             {
                 ViewBag.Categories = _repo.Categories.ToList();
-                return View("Edit", updatedTask);
+                return View("Edit", formData);
             }
 
-            _repo.UpdateTask(updatedTask);
+            // Convert TaskFormVM back to TaskItem entity
+            var taskItem = new TaskItem
+            {
+                TaskItemId = formData.Id ?? 0,
+                TaskName = formData.Task,
+                DueDate = formData.DueDate,
+                Quadrant = formData.Quadrant,
+                CategoryId = formData.CategoryId,
+                Completed = formData.Completed
+            };
+
+            _repo.UpdateTask(taskItem);
             _repo.Save();
 
             return RedirectToAction("Index");
@@ -82,13 +115,13 @@ namespace Mission08_0106.Controllers
         {
             var taskToDelete = _repo.Tasks
                 .Include(t => t.Category)
-                .Single(t => t.TaskId == id);
+                .Single(t => t.TaskItemId == id);
 
             return View(taskToDelete);
         }
 
         [HttpPost]
-        public IActionResult Delete(TaskFormVM taskToDelete)
+        public IActionResult Delete(TaskItem taskToDelete)
         {
             _repo.DeleteTask(taskToDelete);
             _repo.Save();
@@ -100,7 +133,7 @@ namespace Mission08_0106.Controllers
         [HttpPost]
         public IActionResult MarkComplete(int id)
         {
-            var task = _repo.Tasks.Single(t => t.TaskId == id);
+            var task = _repo.Tasks.Single(t => t.TaskItemId == id);
             task.Completed = true;
             _repo.Save();
 
