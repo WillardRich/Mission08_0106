@@ -32,9 +32,13 @@ namespace Mission08_0106.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.Categories = _repo.Categories.ToList();
-
-            return View(new TaskFormVM());
+            var vm = new TaskFormVM
+            {
+                Categories = _repo.Categories
+                    .Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName })
+                    .ToList()
+            };
+            return View(vm);
         }
 
         [HttpPost]
@@ -42,7 +46,9 @@ namespace Mission08_0106.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Categories = _repo.Categories.ToList();
+                formData.Categories = _repo.Categories
+                    .Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName })
+                    .ToList();
                 return View(formData);
             }
 
@@ -77,10 +83,11 @@ namespace Mission08_0106.Controllers
                 DueDate = taskToEdit.DueDate,
                 Quadrant = taskToEdit.Quadrant,
                 CategoryId = taskToEdit.CategoryId,
-                Completed = taskToEdit.Completed
+                Completed = taskToEdit.Completed,
+                Categories = _repo.Categories
+                    .Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName })
+                    .ToList()
             };
-
-            ViewBag.Categories = _repo.Categories.ToList();
             return View("Edit", formData);
         }
 
@@ -89,7 +96,9 @@ namespace Mission08_0106.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Categories = _repo.Categories.ToList();
+                formData.Categories = _repo.Categories
+                    .Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName })
+                    .ToList();
                 return View("Edit", formData);
             }
 
