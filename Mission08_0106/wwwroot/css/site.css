@@ -18,6 +18,11 @@
   filter: invert(1);
 }
 
+/* Space between header and page body */
+.main-content {
+  margin-top: 32px;
+}
+
 html {
   font-size: 14px;
 }
