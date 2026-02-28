@@ -1,12 +1,91 @@
+@model IEnumerable<Mission08_0106.Models.TaskItem>
 @{
     ViewData["Title"] = "Quadrants";
 }
 
 <div class="container">
-    <div class="row">
-        <div class="col">
+    <div class="row mb-3">
+        <div class="col-6">
             <h1>Quadrants</h1>
-            <p class="text-muted">Quadrant view will be wired up when models and data are ready.</p>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-action="Create" class="btn btn-primary">Add Task</a>
         </div>
     </div>
+
+    <!-- MATRIX -->
+    <div class="border">
+
+        <!-- COLUMN HEADERS -->
+        <div class="row text-center fw-bold border-bottom">
+            <div class="col-2"></div>
+            <div class="col-5 py-2 fs-4 border-end">Urgent</div>
+            <div class="col-5 py-2 fs-4">Not Urgent</div>
+        </div>
+
+        <!-- IMPORTANT ROW -->
+        <div class="row border-bottom">
+            <div class="col-2 d-flex align-items-center justify-content-center fw-bold fs-4 border-end">
+                Important
+            </div>
+
+            <!-- Q1 -->
+            <div class="col-5 border-end p-3">
+                @{
+                    int q = 1;
+                    var quadrantTasks = Model.Where(t => t.Quadrant == q).OrderBy(t => t.DueDate).ToList();
+                }
+                @Html.Partial("_QuadrantCard", (q, quadrantTasks))
+            </div>
+
+            <!-- Q2 -->
+            <div class="col-5 p-3">
+                @{
+                    q = 2;
+                    quadrantTasks = Model.Where(t => t.Quadrant == q).OrderBy(t => t.DueDate).ToList();
+                }
+                @Html.Partial("_QuadrantCard", (q, quadrantTasks))
+            </div>
+        </div>
+
+        <!-- NOT IMPORTANT ROW -->
+        <div class="row">
+            <div class="col-2 d-flex align-items-center justify-content-center fw-bold fs-4 border-end">
+                Not Important
+            </div>
+
+            <!-- Q3 -->
+            <div class="col-5 border-end p-3">
+                @{
+                    q = 3;
+                    quadrantTasks = Model.Where(t => t.Quadrant == q).OrderBy(t => t.DueDate).ToList();
+                }
+                @Html.Partial("_QuadrantCard", (q, quadrantTasks))
+            </div>
+
+            <!-- Q4 -->
+            <div class="col-5 p-3">
+                @{
+                    q = 4;
+                    quadrantTasks = Model.Where(t => t.Quadrant == q).OrderBy(t => t.DueDate).ToList();
+                }
+                @Html.Partial("_QuadrantCard", (q, quadrantTasks))
+            </div>
+        </div>
+
+    </div>
 </div>
+
+@functions {
+    private string GetQuadrantDescription(int q)
+    {
+        return q switch
+        {
+            1 => "Important / Urgent",
+            2 => "Important / Not Urgent",
+            3 => "Not Important / Urgent",
+            4 => "Not Important / Not Urgent",
+            _ => string.Empty
+        };
+    }
+}
